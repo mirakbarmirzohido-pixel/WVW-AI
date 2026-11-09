@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WVW AI</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #050914;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+header {
+  padding: 22px;
+  text-align: center;
+  background: #0b1730;
+  border-bottom: 1px solid #164b91;
+}
+h1 { color: #32aaff; margin: 0; }
+main {
+  max-width: 750px;
+  margin: 35px auto;
+  padding: 20px;
+}
+#chat {
+  height: 55vh;
+  min-height: 300px;
+  overflow-y: auto;
+  background: #0b1425;
+  border: 1px solid #164b91;
+  border-radius: 15px;
+  padding: 15px;
+}
+.msg {
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 12px;
+  background: #142744;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.user { background: #123e70; }
+form { display: flex; gap: 8px; margin-top: 15px; }
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #267acb;
+  background: #101d32;
+  color: white;
+}
+button {
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #168cff;
+  color: white;
+  font-weight: bold;
+}
+button:disabled { opacity: .5; }
+</style>
+</head>
+<body>
+<header>
+  <h1>WVW AI</h1>
+  <p>Sizning aqlli yordamchingiz</p>
+</header>
+<main>
+  <div id="chat">
+    <div class="msg">Assalomu alaykum! Men WVW AI. Sizga qanday yordam beray?</div>
+  </div>
+  <form id="form">
+    <input id="message" placeholder="Savolingizni yozing..." required>
+    <button id="send">Yuborish</button>
+  </form>
+</main>
+<script>
+const form = document.getElementById("form");
+const input = document.getElementById("message");
+const chat = document.getElementById("chat");
+const send = document.getElementById("send");
+
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+
+  addMessage(message, "user");
+  input.value = "";
+  send.disabled = true;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message})
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Xatolik");
+
+    addMessage(data.answer, "ai");
+  } catch (error) {
+    addMessage("Xatolik: " + error.message, "ai");
+  } finally {
+    send.disabled = false;
+    input.focus();
+  }
+});
+</script>
+</body>
+</html>
