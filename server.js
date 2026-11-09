@@ -1,4 +1,3 @@
-
 import express from "express";
 import OpenAI from "openai";
 
@@ -12,7 +11,9 @@ const client = new OpenAI({
 });
 
 app.get("/", (req, res) => {
-  res.send("WVW AI ishlayapti!");
+  res.sendFile("index.html", {
+    root: "public"
+  });
 });
 
 app.post("/api/chat", async (req, res) => {
